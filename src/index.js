@@ -2,12 +2,25 @@ import mongoose from "mongoose";
 import connectDB from "./db/index.js"
 import dotenv from 'dotenv';
 dotenv.config();
+import app from "./app.js"
 
 // import express from "express"
 // const app = express();
 
 // if want to import from outside file where db is connected
-connectDB();
+connectDB()
+    .then(() => {
+        app.on("error", (error) => {
+            console.log(`error:`, error);
+            throw error
+        })
+        app.listen(process.env.PORT || 8000, () => {
+            console.log(`server is running at ${process.env.PORT}`)
+        })
+    })
+    .catch((err) => {
+        console.log(`MONGO db connection FAILED !!!`, err)
+    })
 
 /*
       if want to connect direct in index.js file 

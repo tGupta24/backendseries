@@ -8,7 +8,7 @@ const asyncHandler = (func) => {
     }
 }
 
-export default asyncHandler;
+export { asyncHandler };
 
 /*
 // const asyncHandler = (callBack) => {

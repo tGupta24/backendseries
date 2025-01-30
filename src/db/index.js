@@ -8,7 +8,7 @@ const connectDB = async () => {
     try {
         const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
         // console.log(`${connectionInstance}`);  /// it will not give object because it call a implicit to_string method backtick vala
-        // console.log("MongoDB connected !! full Object is here", connectionInstance);
+        console.log("MongoDB connected !! full Object is here", connectionInstance.url);
     } catch (error) {
         // console.log("MONGODB connection FAILED ", error);
         throw error

@@ -7,13 +7,15 @@ dotenv.config();
 
 export const verifyJWT = asyncHandler(async (req, res, next) => {
     try {
+        console.log(`secured route`)
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", ""); // we only need token
         // Authorization:Bearer space <tokenName>
-
+        console.log("token found");
         if (!token) {
             throw new ApiError(401, "Unauthorized request");
         }
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+        console.log("token matched");
 
 
         // since decodedToken is accesTokenn so it has id also
@@ -24,7 +26,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
             ///TODO: discuss about frontend
             throw new ApiError(401, "Invalid Access Token")
         }
-
+        console.log("adding user...");
         req.user = user;
         next()
     } catch (error) {

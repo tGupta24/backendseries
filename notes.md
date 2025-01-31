@@ -236,4 +236,31 @@ if(incomingRefreshToken !== user?.refreshToke){
 9. go to user route and add a secure endpoint
 
 
+# make subscription schema 
+
+## a changePasswordController 
+1. take old and new password 
+2. since we appy a verifyJwt so we have a user 
+3. user have a isPasswordCorrect method so pass old passowrd in that 
+4. if match then change the new passwrod and save without validation 
+
+
+## make a updateAccountDetail
+1. update by find id and update method 
+
+## NOTE 
+ - if   you want to a file then make a different controller for this
+
+
+## update files
+- rough idea is we have to add a multur file ko accept 
+- vohi update kar paye jo login
+
+### updateUserAvatar 
+1. req.files ❌ req.file ✅ se path leliya 
+
+2. upload on clodinary
+3. and now update using findByIdandUpdate
+4. and send resposse 
+5. same for coverImage
 

@@ -10,10 +10,10 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
         console.log(`secured route`)
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", ""); // we only need token
         // Authorization:Bearer space <tokenName>
-        console.log("token found");
         if (!token) {
             throw new ApiError(401, "Unauthorized request");
         }
+        console.log("token found", token);
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
         console.log("token matched");
 
@@ -24,12 +24,12 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 
         if (!user) {
             ///TODO: discuss about frontend
-            throw new ApiError(401, "Invalid Access Token")
+            throw new ApiError(401, "Invalid Access Token or may be you are already logged out")
         }
         console.log("adding user...");
         req.user = user;
         next()
     } catch (error) {
-        throw new ApiError(401, "invalid access token")
+        throw new ApiError(401, "invalid access token or may be you are already logged out")
     }
 });

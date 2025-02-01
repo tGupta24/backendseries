@@ -264,3 +264,15 @@ if(incomingRefreshToken !== user?.refreshToke){
 4. and send resposse 
 5. same for coverImage
 
+## challanges we have
+1. we want to show profile but in profile we have all information other than total subscriber,totalSubscribed, and user subscribe a channel or not
+2. we can add a array in user model and add id of subcriber into that array but a person can have a million of subscriber and if we want to delete any one between then ... now remember DSA😶
+3. we make a subscription model in which two entity
+ - subscriber type User
+ - channel   type User
+4. now see notes for better understanding or if want subscriber count of user-> count docs where user(codewithharry) as a channel or if want kitno ko usne subscribe kiya he then count docs in which user is as a subcriber
+
+
+# Aggregation Pipeline
+## 
+

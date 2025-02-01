@@ -65,10 +65,18 @@ userSchema.pre("save", async function (next) {
 //  custome method
 
 userSchema.methods.isPasswordCorrect = async function (password) {
-    return await bcrypt.compare(password, this.password);
+    try {
+        console.log("password to be changed isf", password)
+        if (!password) {
+            throw new Error("Password comparison failed: missing data or hash");
+        }
+        return await bcrypt.compare(password, this.password);
+    } catch (error) {
+        console.error("Error comparing password:", error.message);
+        return false; // Return false instead of throwing an error to prevent crashes
+    }
+};
 
-    // return is true or false
-}
 
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign( // it generate token

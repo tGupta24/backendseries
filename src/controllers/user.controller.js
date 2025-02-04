@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
+import mongoose, { Aggregate } from "mongoose";
 dotenv.config()
 
 
@@ -289,8 +290,12 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 })
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-    return res.status(200)
-        .json(200, req.user, "currect user fetched succesfully ")
+
+    return res
+        .status(202)
+        .json(
+            new ApiResponse(202, req.user, "currect user fetched succesfully")
+        )
 })
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -357,6 +362,8 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     if (!avatarLocalPath) {
         new ApiError(400, "avatar file is missing");
     }
+    // avatar is found
+    console.log("avatar is found")
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
@@ -364,6 +371,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         new ApiError(500, "Error while uploading on cloudinary");
     }
 
+    console.log("uploaded to cloudinary")
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
@@ -377,6 +385,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         }
 
     ).select("-password");
+    console.log("updated")
 
     return res.status(200).json(
         new ApiResponse(
@@ -385,9 +394,138 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     )
 })
 
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+
+    const { username } = req.params // because we open a page using url jiski profile dekhni h
+    if (!username?.trim()) {
+        throw new ApiError(400, "username is missing");
+    }
+
+    const channel = await User.aggregate(
+        [
+            {
+                $match: {
+                    username: username?.toLowerCase()
+                }
+            },
+            {
+                $lookup: {
+                    from: "subsciptions", // this is Subscription model but in data base it is save as plural and lowercase 
+                    localField: "_id",
+                    foreignField: "channel", // subscription model me jao and find in how many document this user is as a channel
+                    as: "subscribers"
+                }
+                // yaha tk jitne bhi subscription model me ye user as a channel he vo model yaha add ho gaye honge ek array me
+            },
+            {
+                $lookup: {
+                    from: "subsciptions",
+                    localField: "_id",
+                    foreignField: "subscriber", // is user ne kis kis ko subscribe kiya he ?? toh subscription model me jao or ye user as a subscriber kitne documennts me he vo pata karo 
+                    as: "subscribedTo"
+                    // yaha tk ek subscribedTo nam ka array add ho gya user ke annder
+                }
+            },
+            {
+                $addFields: {
+                    subscribersCount: {
+                        $size: "$subscribers" // iis array ki size hi toh iske subscriber honge so add a new field
+                    },
+                    channelsSubscribedToCount: {
+                        $size: "$subscribedTo" // and this one is whom he/she subscribedTo
+                    },
+                    isSubscribed: {
+                        $cond: {
+                            if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+                            then: true,
+                            else: false
+                        }
+                    }
+                },
+            },
+            {
+                $project: { // jo jjo bhejna he as a profile
+                    fullName: 1,
+                    username: 1,
+                    avatar: 1,
+                    coverImage: 1,
+                    subscribersCount: 1,
+                    channelsSubscribedToCount: 1,
+                    isSubscribed: 1,
+                    email: 1
+                }
+            }
+        ]
+    )
+    console.log(channel)
+    if (!channel?.length) {
+        throw new ApiError(401, "channel does not exists");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponse(200, channel[0], "user channel fetched succesfully"))
+})
+
+const getWatchHistory = asyncHandler(async (req, res) => {
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id),
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: " ",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1,
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields: {
+                            owner: {
+                                $first: "$owner"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+
+    return res.status(200)
+        .json(
+            new ApiResponse(200, user[0].watchHistory, "watch History get Succesfully")
+        )
+})
 
 
-export { registerUser, loginUser, logOutuser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateUsercoverImage };
+
+
+
+
+
+
+
+
+
+export { registerUser, loginUser, logOutuser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateUsercoverImage, getUserChannelProfile, getWatchHistory };
 
 
 

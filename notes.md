@@ -273,6 +273,11 @@ if(incomingRefreshToken !== user?.refreshToke){
 4. now see notes for better understanding or if want subscriber count of user-> count docs where user(codewithharry) as a channel or if want kitno ko usne subscribe kiya he then count docs in which user is as a subcriber
 
 
-# Aggregation Pipeline
-## 
 
+
+## NOTE 
+1. req.user._id is a string 
+2. aggregation pipeline is not handled by mongoose (middleware between mongodb and server) it directly goes to mongoDB so to match id we have make id
+``` _id: new mongoose.Types.ObjectId(req.user._id);```
+
+## watch history

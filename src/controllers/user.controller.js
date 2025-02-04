@@ -476,9 +476,9 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         {
             $lookup: {
                 from: "videos",
-                localField: " ",
-                foreignField: "_id",
-                as: "watchHistory",
+                localField: "watchHistory", // it is an array 
+                foreignField: "_id",  // id of video model mongoose will match every element two that id
+                as: "watchHistory",// watch history is ovewritten
                 pipeline: [
                     {
                         $lookup: {

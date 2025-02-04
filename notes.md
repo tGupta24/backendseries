@@ -281,3 +281,26 @@ if(incomingRefreshToken !== user?.refreshToke){
 ``` _id: new mongoose.Types.ObjectId(req.user._id);```
 
 ## watch history
+- watch history -> array of id's he now using those id's we want the details of video so we lookup in video model 
+- now also we want the owner's detail  of the video again lookup for in user and it will be nested so that 
+- see ek 
+```
+watchHistory
+{
+  video{
+  owner:{
+    username,
+    fullName,
+    ....
+  }
+}
+  video{
+  owner:{
+    username,
+    fullName,
+    ....
+  }
+}
+....
+}
+```
